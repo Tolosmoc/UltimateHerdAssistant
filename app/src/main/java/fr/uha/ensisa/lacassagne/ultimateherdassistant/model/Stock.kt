@@ -4,10 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "stocks")
-class Stock {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
-    var name: String = ""
-    var quantity: Int = 0
+data class Stock (
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    var name: String = "", // Ex : "Fruits", "Légumes", "Viande", ...
+    var quantity: Int = 0,
     var comment: String = ""
-}
+)

@@ -79,6 +79,7 @@ dependencies {
 
     // navigation
     implementation(libs.destinations.core)
+    implementation(libs.androidx.runtime.livedata)
     ksp(libs.destinations.ksp)
 
     // room
