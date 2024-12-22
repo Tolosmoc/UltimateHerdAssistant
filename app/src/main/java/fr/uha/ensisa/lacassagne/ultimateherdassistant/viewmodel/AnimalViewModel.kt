@@ -1,4 +1,4 @@
-package com.monzoo.app.presentation.viewmodel
+package fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -17,6 +17,18 @@ class AnimalViewModel(application: Application) : AndroidViewModel(application) 
     fun addAnimal(animal: Animal) {
         viewModelScope.launch {
             animalDao.insert(animal)
+        }
+    }
+
+    fun deleteAnimal(animal: Animal) {
+        viewModelScope.launch {
+            animalDao.delete(animal)
+        }
+    }
+
+    fun updateAnimal(animal: Animal) {
+        viewModelScope.launch {
+            animalDao.update(animal)
         }
     }
 }

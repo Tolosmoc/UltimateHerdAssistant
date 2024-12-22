@@ -8,20 +8,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.TextField
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.monzoo.app.presentation.viewmodel.AnimalViewModel
 
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
-//import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.AnimalType
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
 
 @Composable
 fun AddAnimalScreen(viewModel : AnimalViewModel = viewModel(), navController: NavController) {
     var name by remember { mutableStateOf(TextFieldValue()) }
-    var type by remember { mutableStateOf(TextFieldValue()) }
+    var selectedType by remember { mutableStateOf<AnimalType?>(null) }
     var age by remember { mutableStateOf(TextFieldValue()) }
     var weight by remember { mutableStateOf(TextFieldValue()) }
     var height by remember { mutableStateOf(TextFieldValue()) }
+
+    var dropdownExpanded by remember { mutableStateOf(false) }
+
 
     Column(
         modifier = Modifier.padding(16.dp),
@@ -33,11 +38,30 @@ fun AddAnimalScreen(viewModel : AnimalViewModel = viewModel(), navController: Na
             label = { Text("Name") }
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = type,
-            onValueChange = { type = it },
-            label = { Text("Type") }
-        )
+
+        // Dropdown for selecting AnimalType
+        Box {
+            Button(onClick = { dropdownExpanded = true }) {
+                Text(
+                    text = selectedType?.displayName ?: "Select Type ⌄"
+                )
+            }
+            DropdownMenu(
+                expanded = dropdownExpanded,
+                onDismissRequest = { dropdownExpanded = false }
+            ) {
+                AnimalType.values().forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type.displayName) },
+                        onClick = {
+                            selectedType = type
+                            dropdownExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             value = age,
@@ -61,8 +85,8 @@ fun AddAnimalScreen(viewModel : AnimalViewModel = viewModel(), navController: Na
             onClick = {
                 val animal = Animal(
                     name = name.text,
-                    type = type.text,
-                    age = age.text.toInt(),
+                    type = selectedType!!,
+                    age = age.text.toInt(), // age.toIntOrNull() ?: 0
                     weight = weight.text.toFloat(),
                     height = height.text.toFloat()
                 )
