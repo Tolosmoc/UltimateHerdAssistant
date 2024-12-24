@@ -27,7 +27,9 @@ fun ModifyAnimalScreen(
 
     var nameError by remember { mutableStateOf<String?>(null) }
     var ageError by remember { mutableStateOf<String?>(null) }
+    var weightInput by remember { mutableStateOf(animal.weight.toString()) }
     var weightError by remember { mutableStateOf<String?>(null) }
+    var heightInput by remember { mutableStateOf(animal.height.toString()) }
     var heightError by remember { mutableStateOf<String?>(null) }
     var dropdownExpanded by remember { mutableStateOf(false) }
 
@@ -63,7 +65,7 @@ fun ModifyAnimalScreen(
 
         TextField(
             value = age.toString(),
-            onValueChange = { value -> age = value.toIntOrNull() ?: -1 },
+            onValueChange = { value -> age = value.toIntOrNull() ?: 0 },
             label = { Text("Age") },
             isError = ageError != null,
             modifier = Modifier.fillMaxWidth()
@@ -71,8 +73,20 @@ fun ModifyAnimalScreen(
         ageError?.let { Text(text = it, color = Color.Red) }
 
         TextField(
-            value = weight.toString(),
-            onValueChange = { value -> weight = value.toFloatOrNull() ?: -1f },
+            value = weightInput,
+            onValueChange = { value ->
+                // Allow empty input or validate and parse the input
+                weightInput = value
+                weightError = null // Reset error
+                weight = when {
+                    value.isEmpty() -> 0f // Default for empty input
+                    value.toFloatOrNull() != null -> value.toFloat() // Valid float
+                    else -> {
+                        weightError = "Invalid input"
+                        weight // Keep previous weight if input is invalid
+                    }
+                }
+            },
             label = { Text("Weight") },
             isError = weightError != null,
             modifier = Modifier.fillMaxWidth()
@@ -80,8 +94,20 @@ fun ModifyAnimalScreen(
         weightError?.let { Text(text = it, color = Color.Red) }
 
         TextField(
-            value = height.toString(),
-            onValueChange = { value -> height = value.toFloatOrNull() ?: -1f },
+            value = heightInput,
+            onValueChange = { value ->
+                // Allow empty input or validate and parse the input
+                heightInput = value
+                heightError = null // Reset error
+                height = when {
+                    value.isEmpty() -> 0f // Default for empty input
+                    value.toFloatOrNull() != null -> value.toFloat() // Valid float
+                    else -> {
+                        heightError = "Invalid input"
+                        height // Keep previous weight if input is invalid
+                    }
+                }
+            },
             label = { Text("Height") },
             isError = heightError != null,
             modifier = Modifier.fillMaxWidth()
@@ -126,7 +152,7 @@ fun validateAnimalInputs(
 ): Map<String, String?> {
     val errors = mutableMapOf<String, String?>()
     if (name.isBlank()) errors["name"] = "Name cannot be empty"
-    if (age <= 0) errors["age"] = "Age must be greater than 0"
+    if (age < 0) errors["age"] = "Age must be greater than 0"
     if (weight <= 0) errors["weight"] = "Weight must be greater than 0"
     if (height <= 0) errors["height"] = "Height must be greater than 0"
     return errors
