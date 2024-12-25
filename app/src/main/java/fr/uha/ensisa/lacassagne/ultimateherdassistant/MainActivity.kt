@@ -17,6 +17,7 @@ import fr.uha.ensisa.lacassagne.ultimateherdassistant.ui.theme.UltimateHerdAssis
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.TopAppBar // if material3 - warning : This material API is experimental and is likely to change or to be removed in the future.
 
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.ui.navigation.BottomNavigationBar
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +30,9 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(title = { androidx.compose.material3.Text("Ultimate Herd Assistant") })
+                    },
+                    bottomBar = {
+                        BottomNavigationBar(navController = navController)
                     },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {

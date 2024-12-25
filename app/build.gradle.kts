@@ -102,6 +102,10 @@ dependencies {
     // SplashScreen
     implementation("androidx.core:core-splashscreen:1.0.0")
 
+    // BottomBat Navigation
+    implementation ("androidx.compose.material3:material3:1.0.0")
+    implementation ("androidx.navigation:navigation-compose:2.4.0-alpha10")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
