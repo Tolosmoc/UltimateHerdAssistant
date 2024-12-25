@@ -34,7 +34,11 @@ import androidx.navigation.compose.rememberNavController
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
 
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.ui.screen.SplashScreen
 
+
+// TODO : separate AppNavigation from MainActivity
+// TODO : create main_screen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,9 +62,16 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "animalList",
+                        startDestination = "splash_screen",
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        composable("splash_screen") {
+                            SplashScreen(navController = navController)
+                        }
+                        composable("main_screen") {
+                            // MainScreen(navController = navController)
+                            AnimalScreen(navController = navController)
+                        }
                         composable("animalList") {
                             AnimalScreen(navController = navController)
                         }
