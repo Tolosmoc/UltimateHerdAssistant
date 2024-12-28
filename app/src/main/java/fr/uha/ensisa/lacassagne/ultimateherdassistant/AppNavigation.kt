@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.DatabaseProvider
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.ui.screen.*
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.MainActivity
 
 @Composable
 fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -27,10 +28,13 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable("main_screen") {
             MainScreen(navController = navController)
         }
-        composable("animalList") {
+        composable("dashboard") {
+            DashboardScreen(navController = navController)
+        }
+        composable("animal_list") {
             AnimalScreen(navController = navController)
         }
-        composable("addAnimal") {
+        composable("add_animal") {
             AddAnimalScreen(navController = navController)
         }
         composable("modifyAnimal/{animalID}") { backStackEntry ->

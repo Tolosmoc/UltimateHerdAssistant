@@ -26,4 +26,7 @@ interface AnimalDao {
 
     @Delete
     suspend fun delete(animals: Animal)
+
+    @Query("SELECT COUNT(*) FROM animals")
+    suspend fun getCount(): Int
 }

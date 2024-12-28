@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 Scaffold(
+
                     topBar = {
                         TopAppBar(title = { androidx.compose.material3.Text("Ultimate Herd Assistant") })
                     },
@@ -36,11 +37,12 @@ class MainActivity : ComponentActivity() {
                     },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
-                            navController.navigate("addAnimal")
+                            navController.navigate("add_animal")
                         }) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "Add Animal")
                         }
                     },
+
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     AppNavigation(navController = navController, modifier = Modifier.padding(innerPadding))

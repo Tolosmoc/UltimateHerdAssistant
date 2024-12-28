@@ -26,7 +26,7 @@ fun SplashScreen(navController: NavController) {
         textU = "Ultimate"
         textH = "Herd"
         textA = "Assistant"
-        delay(2000) // Delay for another 2 seconds
+        delay(2000) // Delay for another 2 seconds TODO : Change according to load app
         navController.navigate("main_screen") {
             popUpTo("splash_screen") { inclusive = true }
         }
