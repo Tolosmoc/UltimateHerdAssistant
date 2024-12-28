@@ -78,5 +78,9 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 Text("Animal not found", color = Color.Red, modifier = Modifier.padding(16.dp))
             }
         }
+        composable("add_track/{animalID}") { backStackEntry ->
+            val animalId = backStackEntry.arguments?.getString("animalID")?.toIntOrNull() ?: return@composable
+            AddTrackScreen(animalId = animalId, navController = navController)
+        }
     }
 }

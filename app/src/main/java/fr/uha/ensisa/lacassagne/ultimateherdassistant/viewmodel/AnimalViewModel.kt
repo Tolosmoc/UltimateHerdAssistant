@@ -5,10 +5,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.dao.AnimalDao
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.DatabaseProvider
+
 import kotlinx.coroutines.launch
 
 class AnimalViewModel(application: Application) : AndroidViewModel(application) {
@@ -36,5 +36,4 @@ class AnimalViewModel(application: Application) : AndroidViewModel(application) 
     fun getAnimalById(id: Int): LiveData<Animal> {
         return animalDao.getById(id).asLiveData()
     }
-
 }

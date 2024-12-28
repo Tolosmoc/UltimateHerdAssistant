@@ -1,10 +1,12 @@
 package fr.uha.ensisa.lacassagne.ultimateherdassistant.ui.screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +21,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.R
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Tracker
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.TrackerViewModel
 
 @Composable
 fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navController: NavController) {
@@ -39,6 +43,12 @@ fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navCo
                 }
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { navController.navigate("add_track/${animal.id}") }) {
+            Text("Add track")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        RecentTrackersSection(animalId = animal.id, viewModel = viewModel())
     }
 }
 
@@ -88,6 +98,23 @@ fun AnimalDetailDialog(animal: Animal, onDismiss: () -> Unit, onModify: () -> Un
             }
         }
     )
+}
+
+@Composable
+fun RecentTrackersSection(animalId: Int, viewModel: TrackerViewModel) {
+    val trackers by viewModel.getTrackersByAnimalId(animalId).observeAsState(initial = emptyList())
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.LightGray)
+            .padding(16.dp)
+    ) {
+        Text(text = "Suivis récents", style = MaterialTheme.typography.headlineSmall)
+        trackers.forEach { tracker ->
+            Text(text = "- Température : ${tracker.temperature}°C (${tracker.date})")
+        }
+    }
 }
 
 /* TODO: Add ActivityHistorySection, FeedingHistorySection and FollowUpHistorySection
