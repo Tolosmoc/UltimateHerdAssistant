@@ -16,7 +16,7 @@ interface AnimalDao {
     fun getAll(): Flow<List<Animal>>
 
     @Query("SELECT * FROM animals WHERE id = :id")
-    suspend fun getById(id: Int): Animal
+    fun getById(id: Int): Animal
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(animal: Animal)

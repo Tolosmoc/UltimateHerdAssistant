@@ -1,163 +1,63 @@
 package fr.uha.ensisa.lacassagne.ultimateherdassistant.ui.screen
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-
-import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.R
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
 
 @Composable
-fun AnimalScreen(modifier: Modifier = Modifier, viewModel: AnimalViewModel = viewModel(), navController: NavController) {
-    val animauxState = viewModel.animals.observeAsState(initial = emptyList())
-    val animaux = animauxState.value
-    var selectedAnimal by remember { mutableStateOf<Animal?>(null) }
+fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navController: NavController) {
+    var showDialog by remember { mutableStateOf(false) }
 
-    LazyColumn(modifier = modifier.padding(16.dp)) {
-        items(animaux.size) { index ->
-            val animal = animaux[index]
-            //Text("${animal.name} \n - ${animal.type} \n - ${animal.age} ans \n - ${animal.weight} \n - ${animal.height}")
-
-            SwipeToManageItem(
+    Column(modifier = Modifier.padding(16.dp)) {
+        HeaderSection(animal = animal)
+        Button(onClick = { showDialog = true }) {
+            Text("Show Details")
+        }
+        if (showDialog) {
+            AnimalDetailDialog(
                 animal = animal,
-                onClick = { selectedAnimal = animal },
-                onUpdate = {
-                    selectedAnimal = null
+                onDismiss = { showDialog = false },
+                onModify = {
                     navController.navigate("modifyAnimal/${animal.id}")
-                },
-                onDelete = { viewModel.deleteAnimal(animal) },
-                modifier = Modifier.fillMaxWidth()
-             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-    }
-
-    selectedAnimal?.let {
-        AnimalDetailDialog(
-            animal = it,
-            onDismiss = { selectedAnimal = null },
-            onModify = {
-                // Navigate to a modify screen or handle the modification
-                selectedAnimal = null
-                navController.navigate("modifyAnimal/${it.id}")
-            }
-        )
-    }
-}
-
-
-@Composable
-fun SwipeToManageItem(
-    animal: Animal,
-    onClick: () -> Unit,
-    onUpdate: () -> Unit,
-    onDelete: () -> Unit,
-    modifier: Modifier
-) {
-    var currentWidth by remember { mutableStateOf(1f) }
-    var current = currentWidth
-    var isDragging by remember { mutableStateOf(false) }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onDragEnd = {
-                        // Snap to closest state when the drag ends
-                        currentWidth = when {
-                            currentWidth < current - 0.05f -> 0.5f
-                            currentWidth > current + 0.05f -> 1f
-                            else -> currentWidth
-                        }
-                        current = currentWidth
-                        isDragging = false
-                    },
-                    onDragStart = {
-                        isDragging = true
-                    },
-                    onHorizontalDrag = { _, dragAmount ->
-                        if (isDragging) {
-                            currentWidth = (currentWidth + dragAmount / 2000).coerceIn(0.5f, 1f)
-                        }
-                    }
-                )
-            }
-    ) {
-        if (currentWidth < 0.9f) {
-            // Action buttons only visible when the row width is significantly reduced
-            Row(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(1f - currentWidth)
-                    .align(Alignment.CenterEnd),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .clickable { onUpdate() }
-                        .background(Color.Blue)
-                        .padding(8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Update", color = Color.White)
                 }
-                Box(
-                    modifier = Modifier
-                        .clickable { onDelete() }
-                        .background(Color.Red)
-                        .padding(8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Delete", color = Color.White)
-                }
-            }
-        }
-
-        // Main content remains fixed at the left side
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(fraction = currentWidth)
-                .background(Color.LightGray)
-                .padding(16.dp)
-                .clickable { onClick() },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Text(
-                text = animal.name,
-                color = Color.Black,
-                modifier = Modifier.weight(1f)
             )
         }
     }
 }
 
+@Composable
+fun HeaderSection(animal: Animal) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        /* TODO: Add image
+        Image(
 
-
-
+            painter = painterResource(id = R.drawable.animal_photo_placeholder),
+            contentDescription = "Animal Photo",
+            modifier = Modifier.size(128.dp)
+        )
+        */
+        Text(text = "🐾 ${animal.name} (${animal.type})", style = MaterialTheme.typography.headlineMedium)
+        Text(text = "Type: ${animal.type}", style = MaterialTheme.typography.bodyMedium)
+        // Text(text = "Born on: ${animal.dateOfBirth}", style = MaterialTheme.typography.bodyMedium)
+    }
+}
 
 @Composable
 fun AnimalDetailDialog(animal: Animal, onDismiss: () -> Unit, onModify: () -> Unit) {
@@ -189,3 +89,46 @@ fun AnimalDetailDialog(animal: Animal, onDismiss: () -> Unit, onModify: () -> Un
         }
     )
 }
+
+/* TODO: Add ActivityHistorySection, FeedingHistorySection and FollowUpHistorySection
+@Composable
+fun ActivityHistorySection(animal: Animal) {
+    Column {
+        Text(text = "Recent Activities", style = MaterialTheme.typography.h6)
+        LazyColumn {
+            items(animal.activities.size) { index ->
+                val activity = animal.activities[index]
+                Text(text = "${activity.description} (${activity.date})", style = MaterialTheme.typography.body2)
+            }
+        }
+    }
+}
+*/
+
+/* TODO: Add FeedingHistorySection and FollowUpHistorySection
+@Composable
+fun FeedingHistorySection(animal: Animal) {
+    Column {
+        Text(text = "Recent Feedings", style = MaterialTheme.typography.h6)
+        LazyColumn {
+            items(animal.feedings.size) { index ->
+                val feeding = animal.feedings[index]
+                Text(text = "${feeding.food} (${feeding.amount}kg) (${feeding.date})", style = MaterialTheme.typography.body2)
+            }
+        }
+    }
+}
+
+@Composable
+fun FollowUpHistorySection(animal: Animal) {
+    Column {
+        Text(text = "Recent Follow-ups", style = MaterialTheme.typography.h6)
+        LazyColumn {
+            items(animal.followUps.size) { index ->
+                val followUp = animal.followUps[index]
+                Text(text = "${followUp.description}: ${followUp.value} (${followUp.date})", style = MaterialTheme.typography.body2)
+            }
+        }
+    }
+}
+*/

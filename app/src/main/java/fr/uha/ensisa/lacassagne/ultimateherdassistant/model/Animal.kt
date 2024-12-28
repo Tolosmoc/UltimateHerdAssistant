@@ -1,5 +1,7 @@
 package fr.uha.ensisa.lacassagne.ultimateherdassistant.model
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.AnimalType
@@ -12,4 +14,8 @@ data class Animal(
     var age: Int = 0,
     var weight: Float = 0.0f,
     var height: Float = 0.0f
-)
+) {
+    fun asLiveData(): LiveData<Animal> {
+        return MutableLiveData(this)
+    }
+}
