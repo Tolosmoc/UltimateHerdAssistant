@@ -29,4 +29,7 @@ interface AnimalDao {
 
     @Query("SELECT COUNT(*) FROM animals")
     suspend fun getCount(): Int
+
+    @Query("UPDATE animals SET weight = :newWeight WHERE id = :animalId")
+    suspend fun updateWeight(animalId: Int, newWeight: Float)
 }

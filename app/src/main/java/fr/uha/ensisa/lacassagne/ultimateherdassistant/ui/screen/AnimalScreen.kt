@@ -45,11 +45,7 @@ fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navCo
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { navController.navigate("add_track/${animal.id}") }) {
-            Text("Add track")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        RecentTrackersSection(animalId = animal.id, viewModel = viewModel())
+        RecentTrackersSection(animalId = animal.id, viewModel = viewModel(), navController = navController)
     }
 }
 
@@ -105,7 +101,7 @@ fun AnimalDetailDialog(animal: Animal, onDismiss: () -> Unit, onModify: () -> Un
 fun Date.toLocalDate(): LocalDate = this.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
 
 @Composable
-fun RecentTrackersSection(animalId: Int, viewModel: TrackerViewModel) {
+fun RecentTrackersSection(animalId: Int, viewModel: TrackerViewModel, navController: NavController) {
     val trackers by viewModel.getTrackersByAnimalId(animalId).observeAsState(emptyList())
 
     val recentTrackers = trackers
@@ -118,7 +114,16 @@ fun RecentTrackersSection(animalId: Int, viewModel: TrackerViewModel) {
         .padding(16.dp)
     ) {
         Column {
-            Text(text = "Recent Trackers", style = MaterialTheme.typography.headlineMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Recent Trackers", style = MaterialTheme.typography.headlineMedium.copy(color = Color.Black))
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = { navController.navigate("add_track/${animalId}") }) {
+                    Text("Add track")
+                }
+            }
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 TrackerGraph(
@@ -142,7 +147,7 @@ fun RecentTrackersSection(animalId: Int, viewModel: TrackerViewModel) {
 @Composable
 fun TrackerGraph(data: List<Pair<LocalDate, Float>>, title: String, color: Color, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        Text(text = title, style = MaterialTheme.typography.headlineSmall)
+        Text(text = title, style = MaterialTheme.typography.headlineSmall.copy(color = Color.Black))
         Box(modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)

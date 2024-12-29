@@ -11,12 +11,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Tracker
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.TrackerViewModel
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun AddTrackScreen(animalId: Int, navController: NavController) {
     val viewModel: TrackerViewModel = viewModel()
+    val animalViewModel: AnimalViewModel = viewModel()
     var date by remember { mutableStateOf("") }
     var temperature by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
@@ -55,13 +57,20 @@ fun AddTrackScreen(animalId: Int, navController: NavController) {
         Button(onClick = {
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             val parsedDate = dateFormat.parse(date) ?: Date()
+            val parseWeight = weight.toFloatOrNull() ?: 0f
             val tracker = Tracker(
-                animalId = animalId, // TODO: Get animalId from arguments
+                animalId = animalId,
                 date = parsedDate,
                 temperature = temperature.toFloatOrNull() ?: 0f,
-                weight = weight.toFloatOrNull() ?: 0f
+                weight = parseWeight
             )
             viewModel.addTracker(tracker)
+
+            val todayDate = dateFormat.format(Date())
+            if (date == todayDate) {
+                animalViewModel.updateWeight(animalId, parseWeight)
+            }
+
             navController.popBackStack()
         }) {
             Text("Save")
