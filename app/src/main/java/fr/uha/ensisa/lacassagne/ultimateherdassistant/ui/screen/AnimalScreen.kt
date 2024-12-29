@@ -1,7 +1,9 @@
 package fr.uha.ensisa.lacassagne.ultimateherdassistant.ui.screen
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,43 +16,96 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-
-import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
-import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
-import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.TrackerViewModel
+import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.util.Date
+import java.util.Locale
+
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.AnimalType
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.TrackerViewModel
+
 
 
 @Composable
 fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        HeaderSection(animal = animal)
-        Button(onClick = { showDialog = true }) {
-            Text("Show Details")
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            HeaderSection(animal = animal)
+            Button(onClick = { showDialog = true }) {
+                Text("Show Details")
+            }
+            if (showDialog) {
+                AnimalDetailDialog(
+                    animal = animal,
+                    onDismiss = { showDialog = false },
+                    onModify = {
+                        navController.navigate("modifyAnimal/${animal.id}")
+                    }
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            RecentTrackersSection(animalId = animal.id, viewModel = viewModel(), navController = navController)
         }
-        if (showDialog) {
-            AnimalDetailDialog(
-                animal = animal,
-                onDismiss = { showDialog = false },
-                onModify = {
-                    navController.navigate("modifyAnimal/${animal.id}")
-                }
+
+        var showImageDialog by remember { mutableStateOf(false) }
+
+        animal.picture?.let {
+            Image(
+                painter = rememberAsyncImagePainter(it),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(100.dp)
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .clickable { showImageDialog = true }
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        RecentTrackersSection(animalId = animal.id, viewModel = viewModel(), navController = navController)
+
+        if (showImageDialog) {
+            Dialog(onDismissRequest = { showImageDialog = false }) {
+                Box(modifier = Modifier
+                    .wrapContentSize()
+                    .background(Color.Black.copy(alpha = 0.8f))
+                    .clickable { showImageDialog = false }
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(animal.picture),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp)
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun HeaderSection(animal: Animal) {
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val formattedDate = animal.birthDate?.let { dateFormat.format(it) } ?: "${animal.age} years"
+
+    val emoji = when (animal.type) {
+        AnimalType.MAMMAL -> "🐾"
+        AnimalType.BIRD -> "🐦"
+        AnimalType.REPTILE -> "🐦"
+        AnimalType.FISH -> "🐟"
+        AnimalType.AMPHIBIAN -> "🐸"
+        else -> "🐾"
+    }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         /* TODO: Add image
         Image(
@@ -60,8 +115,14 @@ fun HeaderSection(animal: Animal) {
             modifier = Modifier.size(128.dp)
         )
         */
-        Text(text = "🐾 ${animal.name} (${animal.type})", style = MaterialTheme.typography.headlineMedium)
-        Text(text = "Type: ${animal.type}", style = MaterialTheme.typography.bodyMedium)
+        Text(text = "$emoji ${animal.name} ($formattedDate)", style = MaterialTheme.typography.headlineMedium)
+        Text(text = "Species: ${animal.species}", style = MaterialTheme.typography.bodyMedium)
+        // Text(text = "Picture: ${animal.picture}", style = MaterialTheme.typography.bodyMedium)
+        /*
+        animal.picture?.let {
+            Image(painter = rememberImagePainter(it), contentDescription = null)
+        }
+        */
         // Text(text = "Born on: ${animal.dateOfBirth}", style = MaterialTheme.typography.bodyMedium)
     }
 }
