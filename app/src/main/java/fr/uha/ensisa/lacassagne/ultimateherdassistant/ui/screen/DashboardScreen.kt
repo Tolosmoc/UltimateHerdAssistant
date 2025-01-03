@@ -4,12 +4,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.DatabaseProvider
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Stock
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.StockViewModel
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -48,12 +57,16 @@ fun HeaderSection() {
 }
 
 @Composable
-fun InfoCardsSection(navController: NavController) {
+fun InfoCardsSection(navController: NavController, viewModel: StockViewModel = viewModel()) {
     val database = DatabaseProvider.getDatabase(navController.context)
+
     val animalCountState = produceState(initialValue = 0) {
         value = database.animalDao().getCount()
     }
     val animalCount = animalCountState.value
+
+    val stockList by viewModel.stockList.observeAsState(initial = emptyList())
+    val criticalStock = stockList.filter { it.quantity < it.minQuantity }
 
     Column {
         Row(
@@ -69,7 +82,22 @@ fun InfoCardsSection(navController: NavController) {
             )
             InfoCard(title = "Recent Activities", value = "15 recent", modifier = Modifier.weight(1f))
         }
-        InfoCard(title = "Critical Stock", value = "Yes (2 products on alert)", isAlert = true, modifier = Modifier.fillMaxWidth())
+        InfoCard(
+            title = "Critical Stock",
+            value = if (criticalStock.isNotEmpty()) {
+                if (criticalStock.size > 1) {
+                    "Yes (${criticalStock.size} products on alert)"
+                } else {
+                    "Yes (${criticalStock[0].name} on alert)"
+                }
+            } else {
+                "No critical stock"
+            },
+            isAlert = criticalStock.isNotEmpty(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate("stock") }
+        )
     }
 }
 

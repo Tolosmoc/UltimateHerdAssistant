@@ -12,10 +12,13 @@ import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Stock
 
 @Dao
 interface StockDao {
-    @Query("SELECT * FROM stocks")
+    @Query("SELECT * FROM stock")
     fun getAll(): Flow<List<Stock>>
 
-    @Query("SELECT * FROM stocks WHERE id = :id")
+    @Query("SELECT * FROM stock WHERE type = :type")
+    fun getByType(type: String): Flow<List<Stock>>
+
+    @Query("SELECT * FROM stock WHERE id = :id")
     fun getById(id: Long): Flow<Stock>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -26,4 +29,11 @@ interface StockDao {
 
     @Delete
     suspend fun delete(stock: Stock)
+
+    @Query("UPDATE stock SET quantity = quantity + :quantity WHERE id = :stockId")
+    suspend fun addStock(stockId: Int, quantity: Int)
+
+    @Query("UPDATE stock SET quantity = quantity - :quantity WHERE id = :stockId")
+    suspend fun reduceStock(stockId: Int, quantity: Int)
+
 }

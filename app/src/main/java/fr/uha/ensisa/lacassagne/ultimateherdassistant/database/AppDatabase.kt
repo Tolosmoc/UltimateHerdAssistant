@@ -10,7 +10,7 @@ import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.dao.*
 
 
 @Database(
-    entities = [Animal::class, Stock::class, Nourissage::class, Tracker::class, Activite::class],
+    entities = [Animal::class, Stock::class, Tracker::class, Activite::class],
     version = 1, // !!! Change this number when you change the database schema OR delete the app !!!
     exportSchema = false
 )
@@ -18,7 +18,6 @@ import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.dao.*
 abstract class AppDatabase : RoomDatabase() {
     abstract fun animalDao(): AnimalDao
     abstract fun stockDao(): StockDao
-    abstract fun nourissageDao(): NourissageDao
     abstract fun trackerDao(): TrackerDao
     abstract fun activiteDao(): ActiviteDao
 }

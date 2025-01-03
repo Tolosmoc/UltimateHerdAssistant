@@ -18,6 +18,9 @@ interface ActiviteDao {
     @Query("SELECT * FROM activities WHERE id = :id")
     suspend fun getById(id: Int): Activite
 
+    @Query("SELECT * FROM activities WHERE animal_id = :animalId")
+    fun getActivitiesByAnimalId(animalId: Int): Flow<List<Activite>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(activity: Activite)
 

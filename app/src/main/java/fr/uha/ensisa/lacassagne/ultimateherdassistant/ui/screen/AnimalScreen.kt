@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -32,7 +34,7 @@ import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.AnimalType
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.TrackerViewModel
-
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.ActiviteViewModel
 
 
 @Composable
@@ -42,8 +44,18 @@ fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navCo
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(16.dp)) {
             HeaderSection(animal = animal)
-            Button(onClick = { showDialog = true }) {
-                Text("Show Details")
+            Row {
+                Button(onClick = { showDialog = true }) {
+                    Text("Show Details")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = { /* Handle Feed action */ }) {
+                    Text("Feed")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = { /* Handle Give Medicine action */ }) {
+                    Text("Give Medicine")
+                }
             }
             if (showDialog) {
                 AnimalDetailDialog(
@@ -56,6 +68,8 @@ fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navCo
             }
             Spacer(modifier = Modifier.height(16.dp))
             RecentTrackersSection(animalId = animal.id, viewModel = viewModel(), navController = navController)
+            Spacer(modifier = Modifier.height(16.dp))
+            ActivitySection(animalId = animal.id, viewModel = viewModel(), navController = navController)
         }
 
         var showImageDialog by remember { mutableStateOf(false) }
@@ -100,7 +114,7 @@ fun HeaderSection(animal: Animal) {
     val emoji = when (animal.type) {
         AnimalType.MAMMAL -> "🐾"
         AnimalType.BIRD -> "🐦"
-        AnimalType.REPTILE -> "🐦"
+        AnimalType.REPTILE -> "\uD83E\uDD8E"
         AnimalType.FISH -> "🐟"
         AnimalType.AMPHIBIAN -> "🐸"
         else -> "🐾"
@@ -297,6 +311,74 @@ fun TrackerGraph(data: List<Pair<LocalDate, Float>>, title: String, color: Color
                 }
 
                 drawPath(path, color = color, style = Stroke(width = 4.dp.toPx()))
+            }
+        }
+    }
+}
+
+@Composable
+fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: NavController) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedFilter by remember { mutableStateOf("All") }
+    val activities by viewModel.getActivitiesByAnimalId(animalId).observeAsState(emptyList())
+    val filteredActivities = activities.filter {
+        when (selectedFilter) {
+            "Food" -> it.type == "Food"
+            "Medical" -> it.type == "Medical"
+            else -> true
+        }
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Activities", style = MaterialTheme.typography.headlineMedium.copy(color = Color.Black))
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = { navController.navigate("add_activity/${animalId}") }) {
+                Text("Add Activity")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { /* Handle dismiss */ }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("All") },
+                    onClick = {
+                        selectedFilter = "All"
+                        expanded = false
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Feed") },
+                    onClick = {
+                        selectedFilter = "Food"
+                        expanded = false
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Medicine") },
+                    onClick = {
+                        selectedFilter = "Medical"
+                        expanded = false
+                    }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn {
+            items(filteredActivities) { activity ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Text(text = activity.description, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = activity.date, style = MaterialTheme.typography.bodyMedium)
+                }
             }
         }
     }
