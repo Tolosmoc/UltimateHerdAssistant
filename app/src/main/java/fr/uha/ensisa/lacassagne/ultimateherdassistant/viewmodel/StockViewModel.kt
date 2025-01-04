@@ -24,7 +24,7 @@ class StockViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getStockByType(type: StockType): LiveData<List<Stock>> {
-        return stockDao.getByType(type.displayName).asLiveData()
+        return stockDao.getByType(type).asLiveData()
     }
 
     fun updateStock(stock: Stock) {

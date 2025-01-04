@@ -17,6 +17,15 @@ class ActiviteViewModel(application: Application) : AndroidViewModel(application
         return activiteDao.getActivitiesByAnimalId(animalId).asLiveData()
     }
 
+    fun getActivitiesByFilter(filter: String): LiveData<List<Activite>> {
+        return when (filter) {
+            "Food" -> activiteDao.getFoodActivities().asLiveData()
+            "Medical" -> activiteDao.getMedicalActivities().asLiveData()
+            "Others" -> activiteDao.getOtherActivities().asLiveData()
+            else -> activiteDao.getAll().asLiveData()
+        }
+    }
+
     fun addActivity(activity: Activite) {
         viewModelScope.launch {
             activiteDao.insert(activity)

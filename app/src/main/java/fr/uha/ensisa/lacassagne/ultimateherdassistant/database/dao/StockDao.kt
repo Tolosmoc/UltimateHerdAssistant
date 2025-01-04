@@ -9,6 +9,7 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Stock
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.StockType
 
 @Dao
 interface StockDao {
@@ -16,7 +17,7 @@ interface StockDao {
     fun getAll(): Flow<List<Stock>>
 
     @Query("SELECT * FROM stock WHERE type = :type")
-    fun getByType(type: String): Flow<List<Stock>>
+    fun getByType(type: StockType): Flow<List<Stock>>
 
     @Query("SELECT * FROM stock WHERE id = :id")
     fun getById(id: Long): Flow<Stock>

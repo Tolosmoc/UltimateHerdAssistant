@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -17,12 +18,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Activite
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.text.SimpleDateFormat
@@ -32,14 +35,25 @@ import java.util.Locale
 
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.AnimalType
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Stock
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.StockType
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.TrackerViewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.ActiviteViewModel
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.StockViewModel
 
 
 @Composable
-fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navController: NavController) {
+fun AnimalScreen(
+    animal: Animal,
+    viewModel: AnimalViewModel = viewModel(),
+    activiteViewModel: ActiviteViewModel = viewModel(),
+    stockViewModel: StockViewModel = viewModel(),
+    navController: NavController
+) {
     var showDialog by remember { mutableStateOf(false) }
+    var showFeedDialog by remember { mutableStateOf(false) }
+    var showMedicineDialog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -49,11 +63,11 @@ fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navCo
                     Text("Show Details")
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { /* Handle Feed action */ }) {
+                Button(onClick = { showFeedDialog = true }) {
                     Text("Feed")
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { /* Handle Give Medicine action */ }) {
+                Button(onClick = { showMedicineDialog = true }) {
                     Text("Give Medicine")
                 }
             }
@@ -64,6 +78,24 @@ fun AnimalScreen(animal: Animal, viewModel: AnimalViewModel = viewModel(), navCo
                     onModify = {
                         navController.navigate("modifyAnimal/${animal.id}")
                     }
+                )
+            }
+            if (showFeedDialog) {
+                ActStockDialog(
+                    animalId = animal.id,
+                    stockType = StockType.FOOD,
+                    onDismiss = { showFeedDialog = false },
+                    activiteViewModel = activiteViewModel,
+                    stockViewModel = stockViewModel
+                )
+            }
+            if (showMedicineDialog) {
+                ActStockDialog(
+                    animalId = animal.id,
+                    stockType = StockType.MEDICINE,
+                    onDismiss = { showMedicineDialog = false },
+                    activiteViewModel = activiteViewModel,
+                    stockViewModel = stockViewModel
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -171,6 +203,94 @@ fun AnimalDetailDialog(animal: Animal, onDismiss: () -> Unit, onModify: () -> Un
         }
     )
 }
+
+@Composable
+fun ActStockDialog(  // Activity using Stock
+    animalId: Int,
+    stockType: StockType,
+    onDismiss: () -> Unit,
+    activiteViewModel: ActiviteViewModel,
+    stockViewModel: StockViewModel
+) {
+    var selectedStock by remember { mutableStateOf<Stock?>(null) }
+    var expandStock by remember { mutableStateOf(false) }
+    var quantity by remember { mutableStateOf("") }
+    val stocks by stockViewModel.getStockByType(stockType).observeAsState(emptyList())
+
+    if (stocks.isEmpty()) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("No Stock Available") },
+            text = { Text("There is currently no stock available for ${stockType.displayName}.") },
+            confirmButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("OK")
+                }
+            }
+        )
+    } else {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Feed Animal") },
+            text = {
+                Column {
+                    Button(onClick = { expandStock = true }) {
+                        Text(selectedStock?.name ?: "Select Type")
+                    }
+                    DropdownMenu(
+                        expanded = expandStock,
+                        onDismissRequest = { /* Handle dismiss */ }
+                    ) {
+                        stocks.forEach { stock ->
+                            DropdownMenuItem(
+                                text = { Text(stock.name) },
+                                onClick = {
+                                    selectedStock = stock
+                                    expandStock = false
+                                }
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = quantity,
+                        onValueChange = { quantity = it },
+                        label = { Text("Quantity") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    selectedStock?.let { stock ->
+                        val chosenQuantity = quantity.toIntOrNull() ?: 0
+                        if (chosenQuantity <= stock.quantity) {
+                            activiteViewModel.addActivity(
+                                Activite(
+                                    animal_id = animalId,
+                                    type = stockType.displayName,
+                                    stock_id = stock.id
+                                )
+                            )
+                            stockViewModel.reduceStock(stock.id, chosenQuantity)
+                            onDismiss()
+                        } else {
+                            // Handle insufficient stock quantity
+                        }
+                    }
+                }) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
 
 // Extension function for readability
 fun Date.toLocalDate(): LocalDate = this.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
@@ -320,14 +440,7 @@ fun TrackerGraph(data: List<Pair<LocalDate, Float>>, title: String, color: Color
 fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: NavController) {
     var expanded by remember { mutableStateOf(false) }
     var selectedFilter by remember { mutableStateOf("All") }
-    val activities by viewModel.getActivitiesByAnimalId(animalId).observeAsState(emptyList())
-    val filteredActivities = activities.filter {
-        when (selectedFilter) {
-            "Food" -> it.type == "Food"
-            "Medical" -> it.type == "Medical"
-            else -> true
-        }
-    }
+    val activities by viewModel.getActivitiesByFilter(selectedFilter).observeAsState(emptyList())
 
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -340,36 +453,48 @@ fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: 
                 Text("Add Activity")
             }
             Spacer(modifier = Modifier.width(8.dp))
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { /* Handle dismiss */ }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("All") },
-                    onClick = {
-                        selectedFilter = "All"
-                        expanded = false
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("Feed") },
-                    onClick = {
-                        selectedFilter = "Food"
-                        expanded = false
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("Medicine") },
-                    onClick = {
-                        selectedFilter = "Medical"
-                        expanded = false
-                    }
-                )
+            Box {
+                Button(onClick = { expanded = true }) {
+                    Text("Filter")
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("All") },
+                        onClick = {
+                            selectedFilter = "All"
+                            expanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Food") },
+                        onClick = {
+                            selectedFilter = "Food"
+                            expanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Medical") },
+                        onClick = {
+                            selectedFilter = "Medical"
+                            expanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Other") },
+                        onClick = {
+                            selectedFilter = "Other"
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
-            items(filteredActivities) { activity ->
+            items(activities) { activity ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
