@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Stock
@@ -31,7 +32,8 @@ fun StockScreen(navController: NavController, viewModel: StockViewModel = viewMo
             items(stockList) { stock ->
                 Text(
                     text = "${stock.name} - ${stock.quantity} g",
-                    color = if (stock.quantity < stock.minQuantity) MaterialTheme.colors.error else Color.White,
+                    color = if (stock.quantity < stock.minQuantity) MaterialTheme.colors.error else Color.Blue,
+                    fontSize = 20.sp,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {

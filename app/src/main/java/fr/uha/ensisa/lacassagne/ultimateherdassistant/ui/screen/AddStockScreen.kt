@@ -25,8 +25,8 @@ fun AddStockScreen(navController: NavController, viewModel: StockViewModel = vie
         TextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name", style = TextStyle(color = Color.White)) },
-            textStyle = TextStyle(color = Color.LightGray),
+            label = { Text("Name", style = TextStyle(color = Color.Blue)) },
+            textStyle = TextStyle(color = Color.Black),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -34,8 +34,8 @@ fun AddStockScreen(navController: NavController, viewModel: StockViewModel = vie
         TextField(
             value = quantity.toString(),
             onValueChange = { quantity = it.toIntOrNull() ?: 0 },
-            label = { Text("Quantity", style = TextStyle(color = Color.White)) },
-            textStyle = TextStyle(color = Color.LightGray),
+            label = { Text("Quantity", style = TextStyle(color = Color.Blue)) },
+            textStyle = TextStyle(color = Color.Black),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -43,8 +43,8 @@ fun AddStockScreen(navController: NavController, viewModel: StockViewModel = vie
         TextField(
             value = minQuantity.toString(),
             onValueChange = { minQuantity = it.toIntOrNull() ?: 0 },
-            label = { Text("Min Quantity", style = TextStyle(color = Color.White)) },
-            textStyle = TextStyle(color = Color.LightGray),
+            label = { Text("Min Quantity", style = TextStyle(color = Color.Blue)) },
+            textStyle = TextStyle(color = Color.Black),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))

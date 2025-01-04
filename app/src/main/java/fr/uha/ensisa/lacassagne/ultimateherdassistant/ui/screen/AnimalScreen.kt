@@ -58,6 +58,7 @@ fun AnimalScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(16.dp)) {
             HeaderSection(animal = animal)
+            Spacer(modifier = Modifier.height(8.dp))
             Row {
                 Button(onClick = { showDialog = true }) {
                     Text("Show Details")
@@ -441,6 +442,11 @@ fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: 
     var expanded by remember { mutableStateOf(false) }
     var selectedFilter by remember { mutableStateOf("All") }
     val activities by viewModel.getActivitiesByFilter(selectedFilter).observeAsState(emptyList())
+    val sortedActivities = activities.sortedByDescending { it.date }
+
+    // Detail
+    var showActivityDetailDialog by remember { mutableStateOf(false) }
+    var selectedActivity by remember { mutableStateOf<Activite?>(null) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -448,21 +454,21 @@ fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: 
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Activities", style = MaterialTheme.typography.headlineMedium.copy(color = Color.Black))
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Button(onClick = { navController.navigate("add_activity/${animalId}") }) {
                 Text("Add Activity")
             }
             Spacer(modifier = Modifier.width(8.dp))
             Box {
                 Button(onClick = { expanded = true }) {
-                    Text("Filter")
+                    Text("No Filter")
                 }
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("All") },
+                        text = { Text("No Filter") },
                         onClick = {
                             selectedFilter = "All"
                             expanded = false
@@ -494,19 +500,58 @@ fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: 
         }
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
-            items(activities) { activity ->
+            items(sortedActivities) { activity ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
+                        .clickable {
+                            selectedActivity = activity
+                            showActivityDetailDialog = true
+                        }
                 ) {
-                    Text(text = activity.description, style = MaterialTheme.typography.bodyMedium)
+                    Text(text = activity.type, style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = activity.date, style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
     }
+
+    if (showActivityDetailDialog && selectedActivity != null) {
+        ActivityDetailDialog(
+            activity = selectedActivity!!,
+            onDismiss = { showActivityDetailDialog = false }
+        )
+    }
+}
+
+@Composable
+fun ActivityDetailDialog(activity: Activite, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Activity Details") },
+        text = {
+            Column {
+                Text("Type: ${activity.type}")
+                Text("Date: ${activity.date}")
+                if (activity.description.isNotEmpty()) {
+                    Text("Description: ${activity.description}")
+                }
+                if (activity.duration != 0) {
+                    Text("Duration: ${activity.duration} minutes")
+                }
+                if (activity.comment.isNotEmpty()) {
+                    Text("Comment: ${activity.comment}")
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }
 
 /* TODO: Add ActivityHistorySection, FeedingHistorySection and FollowUpHistorySection

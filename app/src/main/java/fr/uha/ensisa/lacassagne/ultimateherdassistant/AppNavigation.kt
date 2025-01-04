@@ -83,6 +83,11 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             AddTrackScreen(animalId = animalId, navController = navController)
         }
 
+        composable("add_activity/{animalID}") { backStackEntry ->
+            val animalId = backStackEntry.arguments?.getString("animalID")?.toIntOrNull() ?: return@composable
+            AddActivityScreen(animalId = animalId, navController = navController)
+        }
+
         composable("stock") {
             StockScreen(navController = navController)
         }
