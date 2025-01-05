@@ -157,7 +157,7 @@ fun AddAnimalScreen(viewModel: AnimalViewModel = viewModel(), navController: Nav
             TextField(
                 value = weight,
                 onValueChange = { weight = it },
-                label = { Text("Weight") },
+                label = { Text("Weight (g)") },
                 isError = weightError != null
             )
             weightError?.let { Text(it, color = Color.Red) }
@@ -166,7 +166,7 @@ fun AddAnimalScreen(viewModel: AnimalViewModel = viewModel(), navController: Nav
             TextField(
                 value = height,
                 onValueChange = { height = it },
-                label = { Text("Height") },
+                label = { Text("Height (cm)") },
                 isError = heightError != null
             )
             heightError?.let { Text(it, color = Color.Red) }

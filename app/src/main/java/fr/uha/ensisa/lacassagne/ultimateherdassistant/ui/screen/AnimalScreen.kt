@@ -41,6 +41,7 @@ import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.TrackerViewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.ActiviteViewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.StockViewModel
+import java.time.format.DateTimeFormatter
 
 
 @Composable
@@ -442,7 +443,9 @@ fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: 
     var expanded by remember { mutableStateOf(false) }
     var selectedFilter by remember { mutableStateOf("All") }
     val activities by viewModel.getActivitiesByFilter(selectedFilter).observeAsState(emptyList())
-    val sortedActivities = activities.sortedByDescending { it.date }
+    val sortedActivities = activities.sortedByDescending {
+        LocalDate.parse(it.date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+    }
 
     // Detail
     var showActivityDetailDialog by remember { mutableStateOf(false) }

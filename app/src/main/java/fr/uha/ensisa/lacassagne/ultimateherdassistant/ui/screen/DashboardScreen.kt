@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.DatabaseProvider
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Stock
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.ActiviteViewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.StockViewModel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.collect
@@ -57,13 +58,18 @@ fun HeaderSection() {
 }
 
 @Composable
-fun InfoCardsSection(navController: NavController, viewModel: StockViewModel = viewModel()) {
+fun InfoCardsSection(navController: NavController, viewModel: StockViewModel = viewModel(), activiteViewModel: ActiviteViewModel = viewModel()) {
     val database = DatabaseProvider.getDatabase(navController.context)
 
     val animalCountState = produceState(initialValue = 0) {
         value = database.animalDao().getCount()
     }
     val animalCount = animalCountState.value
+
+    val activities by activiteViewModel.getActivities().observeAsState(emptyList())
+    val recentActivitiesCount = activities.filter {
+        LocalDate.parse(it.date, DateTimeFormatter.ofPattern("dd-MM-yyyy")).isAfter(LocalDate.now().minusWeeks(2))
+    }.size
 
     val stockList by viewModel.stockList.observeAsState(initial = emptyList())
     val criticalStock = stockList.filter { it.quantity < it.minQuantity }
@@ -80,7 +86,13 @@ fun InfoCardsSection(navController: NavController, viewModel: StockViewModel = v
                     .weight(1f)
                     .clickable { navController.navigate("animal_list") }
             )
-            InfoCard(title = "Recent Activities", value = "15 recent", modifier = Modifier.weight(1f))
+            InfoCard(
+                title = "Recent Activities",
+                value = "$recentActivitiesCount recent",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { navController.navigate("activity") }
+            )
         }
         InfoCard(
             title = "Critical Stock",

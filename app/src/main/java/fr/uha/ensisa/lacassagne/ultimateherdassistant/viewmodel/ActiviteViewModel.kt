@@ -13,6 +13,10 @@ import kotlinx.coroutines.launch
 class ActiviteViewModel(application: Application) : AndroidViewModel(application) {
     private val activiteDao: ActiviteDao = DatabaseProvider.getDatabase(application).activiteDao()
 
+    fun getActivities(): LiveData<List<Activite>> {
+        return activiteDao.getAll().asLiveData()
+    }
+
     fun getActivitiesByAnimalId(animalId: Int): LiveData<List<Activite>> {
         return activiteDao.getActivitiesByAnimalId(animalId).asLiveData()
     }

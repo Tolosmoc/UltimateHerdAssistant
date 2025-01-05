@@ -9,6 +9,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalContext
+import java.util.Calendar
+import android.app.DatePickerDialog
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Activite
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.ActiviteViewModel
 
@@ -23,6 +29,22 @@ fun AddActivityScreen(animalId: Int, navController: NavController, viewModel: Ac
     var typeError by remember { mutableStateOf<String?>(null) }
     var durationError by remember { mutableStateOf<String?>(null) }
     var dateError by remember { mutableStateOf<String?>(null) }
+
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            val selectedDate = Calendar.getInstance().apply {
+                set(year, month, dayOfMonth)
+            }.time
+            date = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(selectedDate)
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         TextField(
@@ -53,13 +75,9 @@ fun AddActivityScreen(animalId: Int, navController: NavController, viewModel: Ac
         durationError?.let { Text(it, color = MaterialTheme.colors.error) }
         Spacer(modifier = Modifier.height(8.dp))
 
-        TextField(
-            value = date,
-            onValueChange = { date = it },
-            label = { Text("Date (dd-MM-yyyy)") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = dateError != null
-        )
+        Button(onClick = { datePickerDialog.show() }, modifier = Modifier.fillMaxWidth()) {
+            Text(text = if (date.isEmpty()) "Select Date" else date)
+        }
         dateError?.let { Text(it, color = MaterialTheme.colors.error) }
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -82,7 +100,10 @@ fun AddActivityScreen(animalId: Int, navController: NavController, viewModel: Ac
                     typeError = null
                 }
 
-                if (duration.text.toIntOrNull() == null) {
+                if (duration.text.isBlank()) {
+                    duration = TextFieldValue("0")
+                    durationError = null
+                } else if (duration.text.toIntOrNull() == null) {
                     durationError = "Duration must be a valid number"
                     isValid = false
                 } else if (duration.text.toInt() <= 0) {
@@ -93,16 +114,16 @@ fun AddActivityScreen(animalId: Int, navController: NavController, viewModel: Ac
                 }
 
                 if (date.isBlank()) {
-                    dateError = "Date cannot be empty"
+                    dateError = "You need to choose a date"
                     isValid = false
                 } else {
                     dateError = null
                 }
 
-
                 if (isValid) {
                     viewModel.addActivity(
                         Activite(
+                            animal_id = animalId,
                             type = type,
                             description = description,
                             duration = duration.text.toInt(),
