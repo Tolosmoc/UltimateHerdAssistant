@@ -26,8 +26,11 @@ fun MainScreen(navController: NavController) {
                 + "\n - Il manque des modifications sur les animaux (ça peut créer des incohérences)"
                 + "\n - Choix kg/g et m/cm (puis *1000 dans la base) lors de l'ajout d'un animal"
                 + "\n - Mettre plus en évidence pour supprimer un animal"
-                + "\n - Avoir une fenêtre de selection de table (navigation bottom droite)"
+                + "\n - Avoir une fenêtre de selection de table (navigation bottom droite) OU une fenêtre d'information avec ce qu'on peut faire, le github,..."
                 + "\n - Développer le bouton plus pour choisir quoi ajouter (animal, activite ou stock) - un peu comme + de twitter"
+                + "\n - Avoir un filtre dans la liste des animaux et dans la liste des filtres ( et celle des stocks ?)"
+                + "\n - Theme ? (darkTheme)"
+                + "\n - Uniformiser couleur des input (ex: addTrack != addAnimal)"
                 + "\n - Et bien d'autres choses je suppose...",
             modifier = Modifier.padding(innerPadding).padding(16.dp)
         )
