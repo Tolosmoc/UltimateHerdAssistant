@@ -31,6 +31,9 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable("dashboard") {
             DashboardScreen(navController = navController)
         }
+        composable("information") {
+            InformationScreen(navController = navController)
+        }
         composable("animal_list") {
             AnimalListScreen(navController = navController)
         }
