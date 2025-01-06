@@ -2,6 +2,7 @@ package fr.uha.ensisa.lacassagne.ultimateherdassistant.ui.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -12,6 +13,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.AnimalType
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @Composable
 fun ModifyAnimalScreen(
@@ -24,6 +27,10 @@ fun ModifyAnimalScreen(
     var age by remember { mutableStateOf(animal.age) }
     var weight by remember { mutableStateOf(animal.weight) }
     var height by remember { mutableStateOf(animal.height) }
+    var picture by remember { mutableStateOf<String?>(animal.picture) }
+    var birthday by remember { mutableStateOf<Date?>(animal.birthDate) }
+    var isExactBirthdayUnknown by remember { mutableStateOf(birthday == null) }
+    var species by remember { mutableStateOf("") }
 
     var nameError by remember { mutableStateOf<String?>(null) }
     var ageError by remember { mutableStateOf<String?>(null) }
@@ -31,7 +38,9 @@ fun ModifyAnimalScreen(
     var weightError by remember { mutableStateOf<String?>(null) }
     var heightInput by remember { mutableStateOf(animal.height.toString()) }
     var heightError by remember { mutableStateOf<String?>(null) }
+    // TODO : Add errir check for (type,) picture, birthday (& age), species
     var dropdownExpanded by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         TextField(
@@ -73,21 +82,55 @@ fun ModifyAnimalScreen(
         ageError?.let { Text(text = it, color = Color.Red) }
 
         TextField(
+            value = species,
+            onValueChange = { species = it.trim() },
+            label = { Text("Species") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        // ERROR : Missing
+
+        /* TODO
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (isExactBirthdayUnknown) {
+                TextField(
+                    value = age,
+                    onValueChange = { age = it },
+                    label = { Text("Age") },
+                    isError = ageError != null,
+                    modifier = Modifier.weight(1f)
+                )
+                ageError?.let { Text(it, color = Color.Red) }
+            } else {
+                Button(onClick = { datePickerDialog.show() }, modifier = Modifier.weight(1f)) {
+                    Text(text = birthday?.let { SimpleDateFormat("dd/MM/yyyy").format(it) }
+                        ?: "Select Birthday")
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Checkbox(
+                checked = isExactBirthdayUnknown,
+                onCheckedChange = { isExactBirthdayUnknown = it }
+            )
+            Text("Unknown exact birthdate")
+        }
+        */
+        // ERROR : Missing
+
+        TextField(
             value = weightInput,
             onValueChange = { value ->
-                // Allow empty input or validate and parse the input
                 weightInput = value
-                weightError = null // Reset error
+                weightError = null
                 weight = when {
-                    value.isEmpty() -> 0f // Default for empty input
-                    value.toFloatOrNull() != null -> value.toFloat() // Valid float
+                    value.isEmpty() -> 0f
+                    value.toFloatOrNull() != null -> value.toFloat()
                     else -> {
                         weightError = "Invalid input"
-                        weight // Keep previous weight if input is invalid
+                        weight
                     }
                 }
             },
-            label = { Text("Weight") },
+            label = { Text("Weight (g)") },
             isError = weightError != null,
             modifier = Modifier.fillMaxWidth()
         )
@@ -96,23 +139,31 @@ fun ModifyAnimalScreen(
         TextField(
             value = heightInput,
             onValueChange = { value ->
-                // Allow empty input or validate and parse the input
                 heightInput = value
-                heightError = null // Reset error
+                heightError = null
                 height = when {
-                    value.isEmpty() -> 0f // Default for empty input
-                    value.toFloatOrNull() != null -> value.toFloat() // Valid float
+                    value.isEmpty() -> 0f
+                    value.toFloatOrNull() != null -> value.toFloat()
                     else -> {
                         heightError = "Invalid input"
-                        height // Keep previous weight if input is invalid
+                        height
                     }
                 }
             },
-            label = { Text("Height") },
+            label = { Text("Height (cm)") },
             isError = heightError != null,
             modifier = Modifier.fillMaxWidth()
         )
         heightError?.let { Text(text = it, color = Color.Red) }
+
+        TextField(
+            value = picture ?: "",
+            onValueChange = { picture = it.trim() },
+            label = { Text("Picture") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        // ERROR : Missing
+        // Diszplay pic missing
 
         Spacer(modifier = Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
@@ -125,22 +176,48 @@ fun ModifyAnimalScreen(
                 heightError = validationErrors["height"]
 
                 if (validationErrors.isEmpty()) {
-                    // Create a new animal object with updated values
-                    val updatedAnimal = animal.copy(
-                        name = name,
-                        type = type,
-                        age = age,
-                        weight = weight,
-                        height = height
-                    )
-                    // Update the animal through ViewModel
-                    viewModel.updateAnimal(updatedAnimal)
-                    onCancel()
+                    if (weight != animal.weight || height != animal.height) {
+                        showDialog = true
+                    } else {
+                        viewModel.updateAnimal(updateAnimal(animal, name, type, age, weight, height, picture, birthday, species))
+                        onCancel()
+                    }
                 }
             }) {
                 Text("Save")
             }
         }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Warning") },
+            text = { Text("If you wish to modify the height or weight of an animal, you should add a track.") },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        weight = animal.weight
+                        height = animal.height
+                        weightInput = animal.weight.toString()
+                        heightInput = animal.height.toString()
+                        showDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Cancel")
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.updateAnimal(updateAnimal(animal, name, type, age, weight, height, picture, birthday, species))
+                    showDialog = false
+                    onCancel()
+                }) {
+                    Text("Save Anyway")
+                }
+            }
+        )
     }
 }
 
@@ -156,4 +233,27 @@ fun validateAnimalInputs(
     if (weight <= 0) errors["weight"] = "Weight must be greater than 0"
     if (height <= 0) errors["height"] = "Height must be greater than 0"
     return errors
+}
+
+fun updateAnimal(
+    animal: Animal,
+    name: String,
+    type: AnimalType,
+    age: Int,
+    weight: Float,
+    height: Float,
+    picture: String?,
+    birthDate: Date?,
+    species: String
+): Animal {
+    return animal.copy(
+        name = name,
+        type = type,
+        age = age,
+        weight = weight,
+        height = height,
+        picture = picture,
+        birthDate = birthDate,
+        species = species
+    )
 }

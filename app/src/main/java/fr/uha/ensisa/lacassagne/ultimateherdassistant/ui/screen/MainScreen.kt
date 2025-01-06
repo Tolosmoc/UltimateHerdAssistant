@@ -27,6 +27,7 @@ fun MainScreen(navController: NavController) {
                 + "\n /- Certains input de type Int n'ont pas été corrigés (AddStock et ModifyStock (?))"
                 + "\n ?- Choix kg/g et m/cm (puis *1000 dans la base) lors de l'ajout d'un animal"
                 + "\n 3- Il manque des modifications sur les animaux (peut créer des incohérences)"
+                + "\n De même, empêcher modification poid/taille => à faire depuis 'Add Track'"
                 + "\n ?- Mettre plus en évidence pour supprimer un animal"
                 + "\n 7- Cacher les graph de animalScreen comme un menu déroulant ?"
                 + "\n 4- Les graph du dashboard ne sont pas encore implémentés"
