@@ -13,7 +13,7 @@ fun BottomNavigationBar(navController: NavController) {
     val items = listOf(
         BottomNavItem.Home,
         BottomNavItem.Profile,
-        BottomNavItem.AddAnimal
+        BottomNavItem.Information
     )
     BottomNavigation {
         val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
