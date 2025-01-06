@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -70,8 +71,8 @@ fun StockDetailDialog(
     onAddStock: (Int) -> Unit
 ) {
     var name by remember { mutableStateOf(stock.name) }
-    var minQuantity by remember { mutableStateOf(stock.minQuantity) }
-    var addQuantity by remember { mutableStateOf(0) }
+    var minQuantity by remember { mutableStateOf(TextFieldValue("${stock.minQuantity}")) }
+    var addQuantity by remember { mutableStateOf(TextFieldValue()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -80,13 +81,13 @@ fun StockDetailDialog(
             Column {
                 TextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
                 TextField(
-                    value = minQuantity.toString(),
-                    onValueChange = { minQuantity = it.toIntOrNull() ?: 0 },
+                    value = minQuantity,
+                    onValueChange = { minQuantity = it },
                     label = { Text("Min Quantity") }
                 )
                 TextField(
-                    value = addQuantity.toString(),
-                    onValueChange = { addQuantity = it.toIntOrNull() ?: 0 },
+                    value = addQuantity,
+                    onValueChange = { addQuantity = it },
                     label = { Text("Add Quantity") }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -94,12 +95,12 @@ fun StockDetailDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onModify(name, minQuantity) }) {
+            Button(onClick = { onModify(name, minQuantity.text.toInt()) }) {
                 Text("Modify")
             }
         },
         dismissButton = {
-            Button(onClick = { onAddStock(addQuantity) }) {
+            Button(onClick = { onAddStock(addQuantity.text.toInt()) }) {
                 Text("Add Stock")
             }
         }

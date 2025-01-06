@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.StockType
@@ -16,8 +17,8 @@ import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.StockViewModel
 @Composable
 fun AddStockScreen(navController: NavController, viewModel: StockViewModel = viewModel()) {
     var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf(0) }
-    var minQuantity by remember { mutableStateOf(0) }
+    var quantity by remember { mutableStateOf(TextFieldValue()) }
+    var minQuantity by remember { mutableStateOf(TextFieldValue()) }
     var type by remember { mutableStateOf(StockType.FOOD) }
     var dropdownExpanded by remember { mutableStateOf(false) }
 
@@ -32,8 +33,8 @@ fun AddStockScreen(navController: NavController, viewModel: StockViewModel = vie
         Spacer(modifier = Modifier.height(8.dp))
 
         TextField(
-            value = quantity.toString(),
-            onValueChange = { quantity = it.toIntOrNull() ?: 0 },
+            value = quantity,
+            onValueChange = { quantity = it },
             label = { Text("Quantity", style = TextStyle(color = Color.Blue)) },
             textStyle = TextStyle(color = Color.Black),
             modifier = Modifier.fillMaxWidth()
@@ -41,8 +42,8 @@ fun AddStockScreen(navController: NavController, viewModel: StockViewModel = vie
         Spacer(modifier = Modifier.height(8.dp))
 
         TextField(
-            value = minQuantity.toString(),
-            onValueChange = { minQuantity = it.toIntOrNull() ?: 0 },
+            value = minQuantity,
+            onValueChange = { minQuantity = it },
             label = { Text("Min Quantity", style = TextStyle(color = Color.Blue)) },
             textStyle = TextStyle(color = Color.Black),
             modifier = Modifier.fillMaxWidth()
@@ -73,7 +74,7 @@ fun AddStockScreen(navController: NavController, viewModel: StockViewModel = vie
 
         Button(
             onClick = {
-                viewModel.addStock(name, quantity, minQuantity, type)
+                viewModel.addStock(name, quantity.text.toInt(), minQuantity.text.toInt(), type)
                 navController.popBackStack()
             },
             modifier = Modifier.align(Alignment.End)
