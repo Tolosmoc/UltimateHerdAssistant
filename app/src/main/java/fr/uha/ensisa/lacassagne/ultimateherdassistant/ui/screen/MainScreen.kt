@@ -34,7 +34,9 @@ fun MainScreen(navController: NavController) {
                 + "\n 1- Activities dans l'odre croissant de date (depuis dashboard -> list activité"
                 + "\n 5- Avoir un filtre dans la liste des animaux (par type) et dans la liste des activités (par animaux) ( et celle des stocks ?)"
                 + "\n - Filtre 'Other' dans la liste des animaux PB ! => All"
-                + "\n - Et bien d'autres choses je suppose...",
+                + "\n - Menu dérouland sur la gauche (trois _)"+ "\n delete activity if animal deleted"
+                + "\n - Et bien d'autres choses je suppose..."
+                + "\n THEH CHANGE THIS SCREEN TO A 'Welcome' AND INDICATION ABOUT BottomNavigationBar",
             modifier = Modifier.padding(innerPadding).padding(16.dp)
         )
     }

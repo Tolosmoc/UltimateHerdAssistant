@@ -37,6 +37,10 @@ class AnimalViewModel(application: Application) : AndroidViewModel(application) 
         return animalDao.getById(id).asLiveData()
     }
 
+    fun getAllAnimals(): LiveData<List<Animal>> {
+        return animalDao.getAll().asLiveData()
+    }
+
     fun updateWeight(animalId: Int, newWeight: Float) {
         viewModelScope.launch {
             animalDao.updateWeight(animalId, newWeight)
