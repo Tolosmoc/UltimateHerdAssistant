@@ -466,7 +466,8 @@ fun TrackerGraph(data: List<Pair<LocalDate, Float>>, title: String, color: Color
 fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: NavController) {
     var expanded by remember { mutableStateOf(false) }
     var selectedFilter by remember { mutableStateOf("All") }
-    val activities by viewModel.getActivitiesByFilter(selectedFilter).observeAsState(emptyList())
+    val activities by viewModel.getActivitiesByAnimalByFilter(animalId, selectedFilter).observeAsState(emptyList())
+    val filteredActivities = activities.filter { it.animal_id == animalId }
     val sortedActivities = activities.sortedByDescending {
         LocalDate.parse(it.date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
     }

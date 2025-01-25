@@ -25,12 +25,12 @@ fun ModifyAnimalScreen(
     var name by remember { mutableStateOf(animal.name) }
     var type by remember { mutableStateOf(animal.type) }
     var age by remember { mutableStateOf(animal.age) }
+    var species by remember { mutableStateOf(animal.species) }
     var weight by remember { mutableStateOf(animal.weight) }
     var height by remember { mutableStateOf(animal.height) }
     var picture by remember { mutableStateOf<String?>(animal.picture) }
     var birthday by remember { mutableStateOf<Date?>(animal.birthDate) }
     var isExactBirthdayUnknown by remember { mutableStateOf(birthday == null) }
-    var species by remember { mutableStateOf("") }
 
     var nameError by remember { mutableStateOf<String?>(null) }
     var ageError by remember { mutableStateOf<String?>(null) }
@@ -38,7 +38,6 @@ fun ModifyAnimalScreen(
     var weightError by remember { mutableStateOf<String?>(null) }
     var heightInput by remember { mutableStateOf(animal.height.toString()) }
     var heightError by remember { mutableStateOf<String?>(null) }
-    // TODO : Add errir check for (type,) picture, birthday (& age), species
     var dropdownExpanded by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 

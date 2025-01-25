@@ -1,6 +1,8 @@
 package fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel
 
 import android.app.Application
+import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
@@ -30,9 +32,22 @@ class ActiviteViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun getActivitiesByAnimalByFilter(animalId: Int, filter: String): LiveData<List<Activite>> {
+        return when (filter) {
+            "Food" -> activiteDao.getFoodActivitiesByAnimalId(animalId).asLiveData()
+            "Medical" -> activiteDao.getMedicalActivitiesByAnimalId(animalId).asLiveData()
+            "Others" -> activiteDao.getOtherActivitiesByAnimalId(animalId).asLiveData()
+            else -> activiteDao.getActivitiesByAnimalId(animalId).asLiveData()
+        }
+    }
+
     fun addActivity(activity: Activite) {
         viewModelScope.launch {
-            activiteDao.insert(activity)
+            try {
+                activiteDao.insert(activity)
+            } catch (e: SQLiteConstraintException) {
+                Log.e("ActiviteViewModel", "Foreign key constraint failed: ${e.message}")
+            }
         }
     }
 
