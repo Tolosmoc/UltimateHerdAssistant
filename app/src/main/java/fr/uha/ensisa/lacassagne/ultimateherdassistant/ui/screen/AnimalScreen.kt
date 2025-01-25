@@ -55,6 +55,7 @@ fun AnimalScreen(
     var showDialog by remember { mutableStateOf(false) }
     var showFeedDialog by remember { mutableStateOf(false) }
     var showMedicineDialog by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableStateOf(0) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -101,9 +102,32 @@ fun AnimalScreen(
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            RecentTrackersSection(animalId = animal.id, viewModel = viewModel(), navController = navController)
-            Spacer(modifier = Modifier.height(16.dp))
-            ActivitySection(animalId = animal.id, viewModel = viewModel(), navController = navController)
+
+            TabRow(selectedTabIndex = selectedTab) {
+                Tab(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text("Recent Trackers")
+                }
+                Tab(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1},
+                    modifier = Modifier.padding(16.dp)
+                ){
+                    Text("Activities")
+                }
+            }
+
+            when (selectedTab) {
+                0 -> RecentTrackersSection(animalId = animal.id, viewModel = viewModel(), navController = navController)
+                1 -> ActivitySection(animalId = animal.id, viewModel = activiteViewModel, navController = navController)
+            }
+
+            // RecentTrackersSection(animalId = animal.id, viewModel = viewModel(), navController = navController)
+            // Spacer(modifier = Modifier.height(16.dp))
+            // ActivitySection(animalId = animal.id, viewModel = viewModel(), navController = navController)
         }
 
         var showImageDialog by remember { mutableStateOf(false) }
@@ -464,7 +488,7 @@ fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: 
             Spacer(modifier = Modifier.width(8.dp))
             Box {
                 Button(onClick = { expanded = true }) {
-                    Text("No Filter")
+                    Text(selectedFilter)
                 }
                 DropdownMenu(
                     expanded = expanded,
@@ -473,7 +497,7 @@ fun ActivitySection(animalId: Int, viewModel: ActiviteViewModel, navController: 
                     DropdownMenuItem(
                         text = { Text("No Filter") },
                         onClick = {
-                            selectedFilter = "All"
+                            selectedFilter = "No Filter"
                             expanded = false
                         }
                     )

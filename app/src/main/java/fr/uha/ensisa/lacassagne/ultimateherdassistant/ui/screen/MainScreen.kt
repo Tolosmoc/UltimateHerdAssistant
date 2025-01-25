@@ -35,6 +35,8 @@ fun MainScreen(navController: NavController) {
                 + "\n 5- Avoir un filtre dans la liste des animaux (par type) et dans la liste des activités (par animaux) ( et celle des stocks ?)"
                 + "\n - Filtre 'Other' dans la liste des animaux PB ! => All"
                 + "\n - Menu dérouland sur la gauche (trois _)"+ "\n delete activity if animal deleted"
+                + "\n - Add Tab to seperate track and activities below header in animalScreen"
+                + "\n - A tester sur 33 ou !34!"
                 + "\n - Et bien d'autres choses je suppose..."
                 + "\n THEH CHANGE THIS SCREEN TO A 'Welcome' AND INDICATION ABOUT BottomNavigationBar",
             modifier = Modifier.padding(innerPadding).padding(16.dp)

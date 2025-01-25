@@ -17,7 +17,7 @@ data class Animal(
     var height: Float = 0.0f,
     var picture: String? = null, // Path to the picture
     var birthDate: Date? = null,
-    var species: String = ""
+    var species: String = "",
 ) {
     fun asLiveData(): LiveData<Animal> {
         return MutableLiveData(this)

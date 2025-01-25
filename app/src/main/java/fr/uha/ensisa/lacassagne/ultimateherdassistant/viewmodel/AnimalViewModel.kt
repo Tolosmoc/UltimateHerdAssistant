@@ -7,13 +7,16 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.dao.AnimalDao
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.dao.ActiviteDao
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.DatabaseProvider
 
 import kotlinx.coroutines.launch
 
 class AnimalViewModel(application: Application) : AndroidViewModel(application) {
     private val animalDao: AnimalDao = DatabaseProvider.getDatabase(application).animalDao()
+    private val activiteDao: ActiviteDao = DatabaseProvider.getDatabase(application).activiteDao()
     val animals: LiveData<List<Animal>> = animalDao.getAll().asLiveData()
+
 
     fun addAnimal(animal: Animal) {
         viewModelScope.launch {
@@ -23,6 +26,7 @@ class AnimalViewModel(application: Application) : AndroidViewModel(application) 
 
     fun deleteAnimal(animal: Animal) {
         viewModelScope.launch {
+            activiteDao.deleteActivitiesByAnimalId(animal.id)
             animalDao.delete(animal)
         }
     }
