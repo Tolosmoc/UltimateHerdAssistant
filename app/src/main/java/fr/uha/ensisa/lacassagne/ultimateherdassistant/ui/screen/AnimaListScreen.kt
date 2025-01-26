@@ -22,36 +22,80 @@ import androidx.navigation.NavController
 
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.viewmodel.AnimalViewModel
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.AnimalType
 
 @Composable
 fun AnimalListScreen(modifier: Modifier = Modifier, viewModel: AnimalViewModel = viewModel(), navController: NavController) {
     val animauxState = viewModel.animals.observeAsState(initial = emptyList())
     val animaux = animauxState.value
     var selectedAnimal by remember { mutableStateOf<Animal?>(null) }
+    var selectedType by remember { mutableStateOf<AnimalType?>(null) }
 
-    LazyColumn(modifier = modifier.padding(16.dp)) {
-        items(animaux.size) { index ->
-            val animal = animaux[index]
-            //Text("${animal.name} \n - ${animal.type} \n - ${animal.age} ans \n - ${animal.weight} \n - ${animal.height}")
-
-            SwipeToManageItem(
-                animal = animal,
-                onClick = { selectedAnimal = animal },
-                onUpdate = {
-                    selectedAnimal = null
-                    navController.navigate("modifyAnimal/${animal.id}")
-                },
-                onDelete = { viewModel.deleteAnimal(animal) },
-                modifier = Modifier.fillMaxWidth()
-             )
-
-            Spacer(modifier = Modifier.height(8.dp))
+    Column(modifier = modifier.padding(16.dp)) {
+        // Dropdown menu for selecting animal type
+        var expanded by remember { mutableStateOf(false) }
+        Box(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+            Text(
+                text = selectedType?.displayName ?: "Select Animal Type",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = true }
+                    .background(Color.LightGray)
+                    .padding(16.dp)
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("All") },
+                    onClick = {
+                        selectedType = null
+                        expanded = false
+                    }
+                )
+                AnimalType.values().forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type.displayName) },
+                        onClick = {
+                            selectedType = type
+                            expanded = false
+                        }
+                    )
+                }
+            }
         }
-    }
 
-    selectedAnimal?.let {
-        selectedAnimal = null
-        navController.navigate("animal/${it.id}")
+        val filteredAnimaux = if (selectedType != null) {
+            animaux.filter { it.type == selectedType }
+        } else {
+            animaux
+        }
+
+        LazyColumn(modifier = modifier.padding(16.dp)) {
+            items(filteredAnimaux.size) { index ->
+                val animal = filteredAnimaux[index]
+                //Text("${animal.name} \n - ${animal.type} \n - ${animal.age} ans \n - ${animal.weight} \n - ${animal.height}")
+
+                SwipeToManageItem(
+                    animal = animal,
+                    onClick = { selectedAnimal = animal },
+                    onUpdate = {
+                        selectedAnimal = null
+                        navController.navigate("modifyAnimal/${animal.id}")
+                    },
+                    onDelete = { viewModel.deleteAnimal(animal) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+
+        selectedAnimal?.let {
+            selectedAnimal = null
+            navController.navigate("animal/${it.id}")
+        }
     }
 }
 

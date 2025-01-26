@@ -9,6 +9,7 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.AnimalType
 
 @Dao
 interface AnimalDao {
@@ -32,4 +33,7 @@ interface AnimalDao {
 
     @Query("UPDATE animals SET weight = :newWeight WHERE id = :animalId")
     suspend fun updateWeight(animalId: Int, newWeight: Float)
+
+    @Query("SELECT * FROM animals WHERE type = :type")
+    fun getByType(type: AnimalType): Flow<List<Animal>>
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.Animal
+import fr.uha.ensisa.lacassagne.ultimateherdassistant.model.AnimalType
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.dao.AnimalDao
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.dao.ActiviteDao
 import fr.uha.ensisa.lacassagne.ultimateherdassistant.database.DatabaseProvider
@@ -49,5 +50,9 @@ class AnimalViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             animalDao.updateWeight(animalId, newWeight)
         }
+    }
+
+    fun getAnimalsByType(type: AnimalType): LiveData<List<Animal>> {
+        return animalDao.getByType(type).asLiveData()
     }
 }
